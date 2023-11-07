@@ -28,14 +28,14 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
     // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
+    await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
     const bookCollection = client.db("bookDB").collection("books");
     const userCollection = client.db("userDB").collection("user");
-    const cartCollection = client.db("cartDB").collection("cartItems");
+    const borrowedCollection = client.db("borrowedDB").collection("borrowedItems");
 
     //get all products
     app.get('/books', async(req, res)=>{
@@ -72,33 +72,55 @@ async function run() {
       const result = await bookCollection.deleteOne(query)
       res.send(result)
      })
+   
+     //find a product
+    app.delete('/books/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await bookCollection.findOne(query)
+      res.send(result)
+     })
 
 
     //update product
     app.put('/books/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
+      const options = {upsert: true};
       const updatedBook = req.body;
       const bookUpdated = {
         $set: {
-          name: updatedBook.name,
           photo: updatedBook.photo,
-          category: updatedBook.category,
+          name: updatedBook.name,
+          authorname: updatedBook.authorname,
           price: updatedBook.price,
+          quantity: updatedBook.quantity,
           description: updatedBook.description,
           rating: updatedBook.rating,
+          category: updatedBook.category,
         }
       };
     
       try {
-        const result = await productCollection.updateOne(filter, productUpdated);
+        const result = await bookCollection.updateOne(filter, bookUpdated, options);
         res.send(result);
       } catch (error) {
         console.error(error);
-        res.status(500).send('Error updating product');
+        res.status(500).send('Error updating book!');
       }
     });
     
+    // set borrowed data
+    app.post("/borrowed", async(req, res)=>{
+      const borrowed = req.body;
+      console.log(borrowed);
+      const result = await borrowedCollection.insertOne(borrowed);
+      res.send(result);
+    })
+
+
+
+
 
 
 
