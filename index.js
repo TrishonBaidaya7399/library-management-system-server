@@ -117,6 +117,17 @@ async function run() {
       const result = await borrowedCollection.insertOne(borrowed);
       res.send(result);
     })
+    
+    //get some products based on email
+    app.get('/borrowed', async(req, res)=>{
+      console.log(req.query.email);
+      let query = {};
+      if(req.query?.email){
+        query = {email: req.query.email}
+      }
+      const result = await borrowedCollection.find(query).toArray();
+      res.send(result);
+    })
 
 
 
