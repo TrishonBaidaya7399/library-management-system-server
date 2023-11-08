@@ -124,6 +124,7 @@ async function run() {
       const result = await bookCollection.updateOne(filter, updatedDoc, options)
       res.send(result);
     }) 
+
     //update product
     app.put('/books/:id', async (req, res) => {
       const id = req.params.id;
@@ -133,6 +134,7 @@ async function run() {
       const bookUpdated = {
         $set: {
           photo: updatedBook.photo,
+          pdf: updatedBook.pdf,
           name: updatedBook.name,
           authorname: updatedBook.authorname,
           price: updatedBook.price,
