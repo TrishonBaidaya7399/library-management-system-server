@@ -37,6 +37,34 @@ async function run() {
     const userCollection = client.db("userDB").collection("user");
     const borrowedCollection = client.db("borrowedDB").collection("borrowedItems");
 
+    // //get all users
+    // app.get('/user', async(req, res)=>{
+    //   const cursor = userCollection.find();
+    //   const result = await cursor.toArray();
+    //   res.send(result);
+
+    // })
+    
+    //get specific users for ------------------>ADMIN
+    app.get('/user', async(req, res)=>{
+      let query = {};
+      if(req.query?.email){
+        query = {email: req.query.email}
+      }
+      console.log(query);
+      const result = await userCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    // set user
+    app.post('/user', async(req, res)=>{
+      const newUser = req.body;
+      console.log(newUser);
+      const result = await userCollection.insertOne(newUser)
+      res.send(result);
+      // console.log(object);
+    })
+
     //get all products
     app.get('/books', async(req, res)=>{
       const cursor = bookCollection.find();
@@ -81,7 +109,21 @@ async function run() {
       res.send(result)
      })
 
-
+    // update quantity decrement
+    app.patch('/books/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter = {_id : new ObjectId(id)};
+      const options = {upsert: true};
+      const updateQuantity = req.body;
+      console.log(updateQuantity);
+      const updatedDoc = {
+        $set: {
+          quantity: updateQuantity?.quantity>0 ? updateQuantity.quantity - 1 : updateQuantity.quantity
+        }, 
+      }
+      const result = await bookCollection.updateOne(filter, updatedDoc, options)
+      res.send(result);
+    }) 
     //update product
     app.put('/books/:id', async (req, res) => {
       const id = req.params.id;
@@ -118,9 +160,8 @@ async function run() {
       res.send(result);
     })
     
-    //get some products based on email
+    //get some products based on email on cart
     app.get('/borrowed', async(req, res)=>{
-      console.log(req.query.email);
       let query = {};
       if(req.query?.email){
         query = {email: req.query.email}
@@ -128,6 +169,30 @@ async function run() {
       const result = await borrowedCollection.find(query).toArray();
       res.send(result);
     })
+   
+    // delete some data from cart
+    app.delete('/borrowed/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)};
+        const result = await borrowedCollection.deleteOne(query);
+        res.send(result);
+    })
+
+    // update booking status
+    app.patch('/borrowed/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter = {_id : new ObjectId(id)}
+      const updatedBooking = req.body;
+      console.log(updatedBooking);
+      const updatedDoc = {
+        $set: {
+          status: updatedBooking.status,
+        },
+      }
+      const result = await borrowedCollection.updateOne(filter, updatedDoc)
+      res.send(result);
+    })
+
 
 
 
