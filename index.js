@@ -11,7 +11,7 @@ app.use(express.json());
 
 //hv2ReAvSCVR00jYS
 //BookShelf
-
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.wlvfdkk.mongodb.net/?retryWrites=true&w=majority`;
 const uri = "mongodb+srv://BookShelf:hv2ReAvSCVR00jYS@cluster0.wlvfdkk.mongodb.net/?retryWrites=true&w=majority";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
